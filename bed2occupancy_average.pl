@@ -102,8 +102,8 @@ use Getopt::Long;
 use Pod::Usage;
 use IO::Dir;
 use List::Util 'sum';
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError) ;
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError) ;
 use File::Basename;
 
 # Variables set in response to command line arguments
@@ -212,12 +212,14 @@ exit;
 sub BED_2_OCC {
     my ($infile_name, $outfile, $chromosome_col, $start_col, $end_col, $strand_col, $flag) = @_;
     
-	my $infile;
-	if ( $infile_name =~ (/.*\.gz$/) ) {
-		$infile = IO::Uncompress::Gunzip->new( $infile_name )
-		or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-	}
-	else { open( $infile, "<", $infile_name ) or die "error: $infile_name cannot be opened:$!"; }
+    my $infile;
+    open $infile, "<", $infile_name or die "error: $infile_name cannot be opened: $!";
+    
+	#if ( $infile_name =~ (/.*\.gz$/) ) {
+	#	$infile = IO::Uncompress::Gunzip->new( $infile_name )
+	#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+	#}
+	#else { open( $infile, "<", $infile_name ) or die "error: $infile_name cannot be opened:$!"; }
     
     my $buffer = "";
     my $sz_buffer = 0;
@@ -285,15 +287,16 @@ sub BED_2_OCC {
 	# open pipe to Gzip or open text file for writing
 	my $out_file = $outfile;
 	my $OUT_FHs;
+	open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
 	
-	if ($useGZ) {
-		$out_file =~ s/(.*)\.gz$/$1/;
-		my $gz_out_file = $out_file.".gz";
-		$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-	}
-	else {
-		open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
-	}
+	#if ($useGZ) {
+	#	$out_file =~ s/(.*)\.gz$/$1/;
+	#	my $gz_out_file = $out_file.".gz";
+	#	$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+	#}
+	#else {
+	#	open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
+	#}
 
     $timer2 = time();
  

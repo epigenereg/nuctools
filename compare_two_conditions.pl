@@ -92,8 +92,8 @@ perl -w compare_two_conditions.pl --input1=<healthy.txt> --input2=<patients.txt>
 use strict 'vars';
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError) ;
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError) ;
 use Time::localtime;
 use Time::Local;
 use File::Basename;
@@ -159,25 +159,28 @@ ReadFile($input2, 2, 1, $Col_coord, $Col_signal, \%occupancy);
 
 # open pipe to Gzip or open text file for writing
 my ($out_file,$gz_out_file, $OUT1_FHs, $OUT2_FHs);
+
 $out_file = $output1;
-if ($useGZ) {
-	$out_file =~ s/(.*)\.gz$/$1/;
-	$gz_out_file = $out_file.".gz";
-	$OUT1_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-}
-else {
-	open $OUT1_FHs, '>', $output1 or die "Can't open $output1 for writing; $!\n";
-}
+open $OUT1_FHs, '>', $output1 or die "Can't open $output1 for writing; $!\n";
+#if ($useGZ) {
+#	$out_file =~ s/(.*)\.gz$/$1/;
+#	$gz_out_file = $out_file.".gz";
+#	$OUT1_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+#}
+#else {
+#	open $OUT1_FHs, '>', $output1 or die "Can't open $output1 for writing; $!\n";
+#}
 
 $out_file = $output2;
-if ($useGZ) {
-	$out_file =~ s/(.*)\.gz$/$1/;
-	$gz_out_file = $out_file.".gz";
-	$OUT2_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-}
-else {
-	open $OUT2_FHs, '>', $output1 or die "Can't open $output1 for writing; $!\n";
-}
+open $OUT2_FHs, '>', $output1 or die "Can't open $output1 for writing; $!\n";
+#if ($useGZ) {
+#	$out_file =~ s/(.*)\.gz$/$1/;
+#	$gz_out_file = $out_file.".gz";
+#	$OUT2_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+#}
+#else {
+#	open $OUT2_FHs, '>', $output1 or die "Can't open $output1 for writing; $!\n";
+#}
 
 print STDERR "\n======================\nstart filtering...";
 my $above_counter=0;
@@ -244,11 +247,13 @@ sub ReadFile {
     
 	# open compressed occupancy file
 	my $inFH;
-	if ( $in_file =~ (/.*\.gz$/) ) {
-		$inFH = IO::Uncompress::Gunzip->new( $in_file )
-		or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-	}
-	else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
+	open $inFH, "<", $in_file or die "error: $in_file cannot be opened: $!";
+	
+	#if ( $in_file =~ (/.*\.gz$/) ) {
+	#	$inFH = IO::Uncompress::Gunzip->new( $in_file )
+	#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+	#}
+	#else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
 
     my $buffer = "";
     my $sz_buffer = 0;

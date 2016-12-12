@@ -80,8 +80,8 @@ perl -w stable_nucs_replicates.pl --input=<path to input DIR> --output=<out.bed>
 use strict 'vars';
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError) ;
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError) ;
 use Time::localtime;
 use Time::Local;
 use File::Basename;
@@ -146,14 +146,16 @@ for (my $i=0; $i<=$#files; $i++) {
 # open pipe to Gzip or open text file for writing
   my ($gz_out_file,$out_file,$OUT_FHs);
   $out_file = $output;
-	if ($useGZ) {
-		$out_file =~ s/(.*)\.gz$/$1/;
-		$gz_out_file = $out_file.".gz";
-		$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-	}
-	else {
-		open $OUT_FHs, '>', $output or die "Can't open $output for writing; $!\n";
-	}
+  open $OUT_FHs, '>', $output or die "Can't open $output for writing; $!\n";
+  
+	#if ($useGZ) {
+	#	$out_file =~ s/(.*)\.gz$/$1/;
+	#	$gz_out_file = $out_file.".gz";
+	#	$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+	#}
+	#else {
+	#	open $OUT_FHs, '>', $output or die "Can't open $output for writing; $!\n";
+	#}
 
 print STDERR "calcualting StDev, Variance and average.\nResults will be saved to $output\n";
 my $size = keys %occupancy;
@@ -262,11 +264,12 @@ sub ReadFile {
     
 	# open compressed occupancy file
 	my $inFH;
-	if ( $in_file =~ (/.*\.gz$/) ) {
-		$inFH = IO::Uncompress::Gunzip->new( $in_file )
-		or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-	}
-	else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
+	open $inFH, "<", $in_file or die "error: $in_file cannot be opened: $!";
+	#if ( $in_file =~ (/.*\.gz$/) ) {
+	#	$inFH = IO::Uncompress::Gunzip->new( $in_file )
+	#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+	#}
+	#else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
 
     my $buffer = "";
     my $sz_buffer = 0;

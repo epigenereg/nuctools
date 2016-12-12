@@ -82,8 +82,8 @@ perl -w extend_SE_reads.pl -in <in.bed> -out <out.bed> -fL <fragment length> [-c
 use strict 'vars';
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError) ;
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError) ;
 
 my $in_file;
 my $outfile;
@@ -118,14 +118,16 @@ my $options_okay = &Getopt::Long::GetOptions(
 
 my ($gz_out_file,$out_file,$OUT_FHs);
 $out_file = $outfile;
-  if ($useGZ) {
-	  $out_file =~ s/(.*)\.gz$/$1/;
-	  $gz_out_file = $out_file.".gz";
-	  $OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-  }
-  else {
-	  open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
-  }
+open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
+
+#  if ($useGZ) {
+#	  $out_file =~ s/(.*)\.gz$/$1/;
+#	  $gz_out_file = $out_file.".gz";
+#	  $OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+#  }
+#  else {
+#	  open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
+#  }
 
 #------------------------------------------------------------------------------
 #read file with occupanicies
@@ -141,11 +143,13 @@ my $BUFFER_SIZE = 1024*4;
 
 # open occupancy file
 my $inFH;
-if ( $in_file =~ (/.*\.gz$/) ) {
-	$inFH = IO::Uncompress::Gunzip->new( $in_file )
-	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-}
-else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
+open $inFH, "<", $in_file or die "error: $in_file cannot be opened: $!";
+
+#if ( $in_file =~ (/.*\.gz$/) ) {
+#	$inFH = IO::Uncompress::Gunzip->new( $in_file )
+#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+#}
+#else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
 	
 my $buffer = "";
 my $sz_buffer = 0;

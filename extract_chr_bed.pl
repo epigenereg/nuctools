@@ -15,8 +15,8 @@ perl -w extract_chr_bed.pl -in all_data.bed.gz -out output_name_template -p [<pa
 
  Options:
     --chromosomes | -chrNr  set the number of chromosomes to extract (default: all - extract all chromosomes)
-	--dir | -d              output folder (default: script working directory)
-    --gzip | -z        compress the output
+    --dir | -d              output folder (default: script working directory)
+    --gzip | -z             compress the output
 
     --help | -h             Help
 	
@@ -92,8 +92,8 @@ perl -w extract_chr_bed.pl -in all_data.bed.gz -out output_name_template -p [<pa
 use strict;
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError) ;
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError) ;
 
 # Variables set in response to command line arguments
 # (with defaults)
@@ -133,15 +133,27 @@ print STDERR "chromosome ID template: $pattern\n";
 print STDERR "total number of chromosome to extract: $chrNr\n";
 print STDERR "chromosome column Nr.: $chromosome_col\n";
 
+print STDERR "check if output folder exists: ";
+if ( !-d $output_dir ) {
+    print STDERR "\ntrying to create a new folder...";
+    mkdir $output_dir or die "Failed to create path: $output_dir";
+    print STDERR "done\n";
+}
+else { print STDERR "directory created\n";}
+
 my @chromosomes;
 my @FHs;
 my (@OUT_FHs, %OUT_FHs);
 
-if ( $infile_name =~ (/.*\.gz$/) ) {
-	$infile = IO::Uncompress::Gunzip->new( $infile_name )
-    or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-}
-else { open( $infile, "<", $infile_name ) or die "error: $infile_name cannot be opened:$!"; }
+#if ( $infile_name =~ (/.*\.gz$/) ) {
+#	$infile = IO::Uncompress::Gunzip->new( $infile_name )
+#    or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+#}
+#else {
+#open( $infile, "<", $infile_name ) or die "error: $infile_name cannot be opened:$!";
+#	}
+
+open( $infile, "<", $infile_name ) or die "error: $infile_name cannot be opened:$!";
 
 my $buffer = "";
 my $sz_buffer = 0;
@@ -174,25 +186,25 @@ if ($chrNr eq "all") {
         my @lines = split(/$regex_split_newline/o, $buffer);
         # process each line in zone file
         foreach my $line (@lines) {
-			my @newline1=split(/\t/, $line);
-            my $chr_name=$newline1[$chromosome_col];
+		my @newline1=split(/\t/, $line);
+                my $chr_name=$newline1[$chromosome_col];
 			
-			#initialize file handle
-			if (not defined $OUT_FHs{$chr_name} ){
-				my $out_filename_gz= $output_dir.$chr_name.".".$outfile.".bed.gz";
-				my $out_filename= $output_dir.$chr_name.".".$outfile.".bed";
-				if ($useGZ) {
+		#initialize file handle
+		if (not defined $OUT_FHs{$chr_name} ){
+			my $out_filename_gz= $output_dir.$chr_name.".".$outfile.".bed.gz";
+			my $out_filename= $output_dir.$chr_name.".".$outfile.".bed";
+			if ($useGZ) {
 				print STDERR "start writing data to file $out_filename_gz...\n";				
-					$OUT_FHs{$chr_name} = new IO::Compress::Gzip ($out_filename_gz) or open ">$out_filename" or die "Can't open $out_filename for writing: $!\n";
-				}
-				else {
-				print STDERR "start writing data to file $out_filename...\n";				
-					open $OUT_FHs{$chr_name}, '>', $out_filename or die "Can't open $out_filename for writing; $!\n";
-				}
-
+				#$OUT_FHs{$chr_name} = new IO::Compress::Gzip ($out_filename_gz) or open ">$out_filename" or die "Can't open $out_filename for writing: $!\n";
+				open $OUT_FHs{$chr_name}, '>', $out_filename or die "Can't open $out_filename for writing; $!\n";
 			}
-			my $OUT_FH = $OUT_FHs{$chr_name};
-			print $OUT_FH "$line\n";
+			else {
+				print STDERR "start writing data to file $out_filename...\n";				
+				open $OUT_FHs{$chr_name}, '>', $out_filename or die "Can't open $out_filename for writing; $!\n";
+			}
+		}
+		my $OUT_FH = $OUT_FHs{$chr_name};
+		print $OUT_FH "$line\n";
         }
         $processed_memory_size += $n;
         $offset += $n;
@@ -222,7 +234,8 @@ elsif ($chrNr > 1) {
 		my $out_filename= $output_dir.$chromosomes[$i].".".$outfile.".bed";
 		if ($useGZ) {
 			print STDERR "start writing data to file $out_filename_gz...\n";				
-			$OUT_FHs[$i] = new IO::Compress::Gzip ($out_filename_gz) or open ">$out_filename" or die "Can't open $out_filename for writing: $!\n";
+			#$OUT_FHs[$i] = new IO::Compress::Gzip ($out_filename_gz) or open ">$out_filename" or die "Can't open $out_filename for writing: $!\n";
+			open $OUT_FHs[$i], '>', $out_filename or die "Can't open $out_filename for writing; $!\n";
 		}
 		else {
 			print STDERR "start writing data to file $out_filename...\n";				
@@ -262,7 +275,8 @@ else {
 	my $OUT_FHs;
 	if ($useGZ) {
 		print STDERR "start writing data to file $out_filename_gz...\n";				
-		$OUT_FHs = new IO::Compress::Gzip ($out_filename_gz) or open ">$out_filename" or die "Can't open $out_filename for writing: $!\n";
+		#$OUT_FHs = new IO::Compress::Gzip ($out_filename_gz) or open ">$out_filename" or die "Can't open $out_filename for writing: $!\n";
+		open $OUT_FHs, '>', $out_filename or die "Can't open $out_filename for writing; $!\n";
 	}
 	else {
 		print STDERR "start writing data to file $out_filename...\n";				

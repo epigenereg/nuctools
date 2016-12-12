@@ -86,8 +86,8 @@ use List::Util qw(sum);
 use strict 'vars';
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError) ;
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError) ;
 
 
 my (%occupancy,%NormFactors);
@@ -155,15 +155,17 @@ print STDERR "calculating StDev, Variance, Sum and average.\nResults will be sav
 
 # open pipe to Gzip or open text file for writing
   my ($gz_out_file,$out_file,$OUT_FHs);
-  $out_file = $output;
-	if ($useGZ) {
-		$out_file =~ s/(.*)\.gz$/$1/;
-		$gz_out_file = $out_file.".gz";
-		$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-	}
-	else {
-		open $OUT_FHs, '>', $output or die "Can't open $output for writing; $!\n";
-	}
+  open $OUT_FHs, '>', $output or die "Can't open $output for writing; $!\n";
+
+#  $out_file = $output;
+#	if ($useGZ) {
+#		$out_file =~ s/(.*)\.gz$/$1/;
+#		$gz_out_file = $out_file.".gz";
+#		$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+#	}
+#	else {
+#		open $OUT_FHs, '>', $output or die "Can't open $output for writing; $!\n";
+#	}
 
 
 if ($addData) {
@@ -264,14 +266,14 @@ sub ReadFile {
     #@coord_occ_array=();
     my $BUFFER_SIZE = 1024*4;
     
-	# open compressed occupancy file
-	my $inFH;
-	if ( $in_file =~ (/.*\.gz$/) ) {
-		$inFH = IO::Uncompress::Gunzip->new( $in_file )
-		or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-	}
-	else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
-
+    # open compressed occupancy file
+    my $inFH;
+#    if ( $in_file =~ (/.*\.gz$/) ) {
+#	    $inFH = IO::Uncompress::Gunzip->new( $in_file )
+#	    or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+#    }
+#    else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
+    open $inFH, "<", $in_file or die "error: $in_file cannot be opened:$!";
     my $buffer = "";
     my $sz_buffer = 0;
     my $timer2 = time();

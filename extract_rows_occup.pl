@@ -76,8 +76,8 @@ perl -w extract_rows_occup.pl -input=<in.bed> -output=<out.bed> -start=<selected
 use strict;
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError);
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError);
 
 my $infile;
 my $outfile;
@@ -106,22 +106,26 @@ my $options_okay = &Getopt::Long::GetOptions(
 # open pipe to Gzip or open text file for writing
   my ($gz_out_file,$out_file,$OUT_FHs);
   $out_file = $outfile;
-	if ($useGZ) {
-		$out_file =~ s/(.*)\.gz$/$1/;
-		$gz_out_file = $out_file.".gz";
-		$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-	}
-	else {
-		open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
-	}
+  open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
+  
+#  if ($useGZ) {
+#	$out_file =~ s/(.*)\.gz$/$1/;
+#	$gz_out_file = $out_file.".gz";
+#	$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+#  }
+#  else {
+#	open $OUT_FHs, '>', $outfile or die "Can't open $outfile for writing; $!\n";
+#  }
 
 # open occupancy file
 my $inFH;
-if ( $infile =~ (/.*\.gz$/) ) {
-	$inFH = IO::Uncompress::Gunzip->new( $infile )
-	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-}
-else { open( $inFH, "<", $infile ) or die "error: $infile cannot be opened:$!"; }
+open $inFH, "<", $infile or die "error: $infile cannot be opened: $!";
+
+#if ( $infile =~ (/.*\.gz$/) ) {
+#	$inFH = IO::Uncompress::Gunzip->new( $infile )
+#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+#}
+#else { open( $inFH, "<", $infile ) or die "error: $infile cannot be opened:$!"; }
 
 my $buffer = "";
 my $sz_buffer = 0;
