@@ -17,8 +17,8 @@ perl -w merge2tabs.pl --table1=<path to table 1> --table2=<path to table 2> --ou
     --colID_tab1 | -c1   column Nr. with unique IDs, table 1 (default: 0)
     --colID_tab2 | -c2   column Nr. with unique IDs, table 2 (default: 0)
 	
-	--gzip               compress resulting merged table with gzip (when found in the system path)
-	--help | h           Help
+    --gzip               compress resulting merged table with gzip (when found in the system path)
+    --help | h           Help
 	
  Example usage:
  
@@ -77,8 +77,8 @@ perl -w merge2tabs.pl --table1=<path to table 1> --table2=<path to table 2> --ou
 use strict;
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError);
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError);
 
 my ($path_tab1, $path_tab2, $path2output);
 my $colID_tab1 = 0;
@@ -111,21 +111,25 @@ my (@array_tab1,@array_tab2);
 # open occupancy file
 
 my $inFH1;
-if ( $path_tab1 =~ (/.*\.gz$/) ) {
-	$inFH1 = IO::Uncompress::Gunzip->new( $path_tab1 )
-	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-}
-else { open( $inFH1, "<", $path_tab1 ) or die "error: $path_tab1 cannot be opened:$!"; }
+open $inFH1, "<", $path_tab1 or die "error: $path_tab1 cannot be opened: $!";
+
+#if ( $path_tab1 =~ (/.*\.gz$/) ) {
+#	$inFH1 = IO::Uncompress::Gunzip->new( $path_tab1 )
+#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+#}
+#else { open( $inFH1, "<", $path_tab1 ) or die "error: $path_tab1 cannot be opened:$!"; }
 while (<$inFH1>) { for my $chank  (split/\r\n/) { my $text = clean($chank); push(@array_tab1, $text); } }
 close($inFH1);
 
 
 my $inFH2;
-if ( $path_tab2 =~ (/.*\.gz$/) ) {
-	$inFH2 = IO::Uncompress::Gunzip->new( $path_tab2 )
-	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-}
-else { open( $inFH1, "<", $path_tab2 ) or die "error: $path_tab2 cannot be opened:$!"; }
+open $inFH2, "<", $path_tab2 or die "error: $path_tab2 cannot be opened: $!";
+
+#if ( $path_tab2 =~ (/.*\.gz$/) ) {
+#	$inFH2 = IO::Uncompress::Gunzip->new( $path_tab2 )
+#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+#}
+#else { open( $inFH2, "<", $path_tab2 ) or die "error: $path_tab2 cannot be opened:$!"; }
 while (<$inFH2>) { for my $chank  (split/\r\n/) { my $text = clean($chank); push(@array_tab2, $text); } }
 close($inFH2);
 
@@ -134,16 +138,17 @@ my ($array_tab1_ref, $array_tab2_ref,$match_array1_ref,$match_array2_ref) = comp
 my @joined_arrays = join_arrays($match_array1_ref,$match_array2_ref);
 
 my $OUT_FHs;
+$OUT_FHs = open ">$path2output" or die "Can't open $path2output for writing: $!\n";
 
-if ($useGzip) {
-	# open pipe to Gzip or open text file for writing
-	my $out_file = $path2output;
-	$out_file =~ s/(.*)\.gz$/$1/;
-	my $gz_out_file = $out_file.".gz";
-	my $OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
-} else {
-	my $OUT_FHs = open ">$path2output" or die "Can't open $path2output for writing: $!\n";
-}
+#if ($useGzip) {
+#	# open pipe to Gzip or open text file for writing
+#	my $out_file = $path2output;
+#	$out_file =~ s/(.*)\.gz$/$1/;
+#	my $gz_out_file = $out_file.".gz";
+#	$OUT_FHs = new IO::Compress::Gzip ($gz_out_file) or open ">$out_file" or die "Can't open $out_file for writing: $!\n";
+#} else {
+#	$OUT_FHs = open ">$path2output" or die "Can't open $path2output for writing: $!\n";
+#}
 
 print OUTPUT join("\n", @joined_arrays), "\n";
 close(OUTPUT);
