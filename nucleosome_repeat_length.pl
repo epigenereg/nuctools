@@ -91,8 +91,8 @@ perl -w nucleosome_repeat_length.pl --input=<in.bed> --output=<filtered.txt> \
 use strict 'vars';
 use Getopt::Long;
 use Pod::Usage;
-use IO::Uncompress::Gunzip qw($GunzipError);
-use IO::Compress::Gzip qw(gzip $GzipError) ;
+#use IO::Uncompress::Gunzip qw($GunzipError);
+#use IO::Compress::Gzip qw(gzip $GzipError) ;
 
 use Time::localtime;
 use Time::Local;
@@ -177,11 +177,13 @@ my $BUFFER_SIZE = 1024*4;
 
 # open occupancy file
 my $inFH;
-if ( $in_file =~ (/.*\.gz$/) ) {
-	$inFH = IO::Uncompress::Gunzip->new( $in_file )
-	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
-}
-else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
+open $inFH, "<", $in_file or die "error: $in_file cannot be opened: $!";
+
+#if ( $in_file =~ (/.*\.gz$/) ) {
+#	$inFH = IO::Uncompress::Gunzip->new( $in_file )
+#	or die "IO::Uncompress::Gunzip failed: $GunzipError\n";
+#}
+#else { open( $inFH, "<", $in_file ) or die "error: $in_file cannot be opened:$!"; }
 
 my $buffer = "";
 my $sz_buffer = 0;
